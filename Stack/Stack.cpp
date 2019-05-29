@@ -1,46 +1,62 @@
 ﻿#include "pch.h"
+#include <stack>
+#include <string>
 #include <iostream>
-#include <vector>
 
 using namespace std;
 
-struct Point
+int error_check(string str)
 {
-	int father = -1;
-	vector <int> son;
-};
-
-int height(vector <Point> &p, int start_point)
-{
-	if (start_point == -1)
-		return 0;
-	int result = 1;
-	int n = p[start_point].son.size();
+	int n = str.size();
+	stack <char> st;
+	stack <int> r_st;
 	for (int i = 0; i < n; i++)
 	{
-		int n_result = 1 + height(p, p[start_point].son[i]);
-		if (n_result > result)
-			result = n_result;
+		char temp = str[i];
+
+		if (temp != '}' && temp != '(' && temp != ']' &&
+			temp != '{' && temp != ')' && temp != '[')
+			continue;
+
+		if (temp == '}')
+		{
+			if (st.empty() || st.top() != '{')
+				return i + 1;
+			st.pop();
+			r_st.pop();
+			continue;
+		}
+		if (temp == ')')
+		{
+			if (st.empty() || st.top() != '(')
+				return i + 1;
+			st.pop();
+			r_st.pop();
+			continue;
+		}
+		if (temp == ']')
+		{
+			if (st.empty() || st.top() != '[')
+				return i + 1;
+			st.pop();
+			r_st.pop();
+			continue;
+		}
+		st.push(temp);
+		r_st.push(i + 1);
 	}
-	return result;
+	if (st.empty())
+		return 0;
+	return r_st.top();
 }
 
 int main()
 {
-	int start_point = -1;
-	int n;
-	cin >> n;
-	vector <Point> p(n);
-	for (int i = 0; i < n; i++)
-	{
-		int temp;
-		cin >> temp;
-		p[i].father = temp;
-		if (temp != -1)
-			p[temp].son.push_back(i);
-		else
-			start_point = i;
-	}
-
-	cout << height(p, start_point);
+	string str;
+	cin >> str;
+	int res = error_check(str);
+	if (res)
+		cout << res;
+	else
+		cout << "Success";
 }
